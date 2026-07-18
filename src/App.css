@@ -1,0 +1,480 @@
+@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
+
+/* ── Reset ── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Body — linen surface the paper sits on ── */
+
+body {
+  font-family: 'Architects Daughter', cursive;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2.5rem 1rem;
+  color: #1a1a1a;
+  background-color: #e8e0d4;
+}
+
+/* ── Card — the paper sheet ── */
+
+.screen {
+  width: 100%;
+  max-width: 520px;
+  /* cream paper base */
+  background-color: #f7f3e9;
+  /* grain texture via SVG filter defined in App.jsx */
+  filter: url(#grain);
+  border: 2.5px solid #1a1a1a;
+  border-radius: 20px;
+  /* offset cartoon shadow + soft ambient drop shadow for paper-lift feel */
+  box-shadow:
+    5px 5px 0 #1a1a1a,
+    0 12px 40px rgba(0, 0, 0, 0.18),
+    0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem 2rem;
+  text-align: center;
+}
+
+/* ── Subtle per-element micro-rotations ── */
+
+.screen > *:nth-child(odd)  { transform: rotate(-0.4deg); }
+.screen > *:nth-child(even) { transform: rotate(0.3deg); }
+
+/* Question prompts get a hand-placed tilt on the sheet */
+.question-block:nth-child(odd)  .prompt { transform: rotate(-0.5deg); }
+.question-block:nth-child(even) .prompt { transform: rotate(0.4deg); }
+
+/* ── Buttons — primary CTA ── */
+
+button {
+  font-family: 'Architects Daughter', cursive;
+  font-size: 1.05rem;
+  color: #fffef9;
+  background: #d63f52;
+  border: 2.5px solid #1a1a1a;
+  border-radius: 12px;
+  padding: 0.75rem 1.6rem;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 #1a1a1a;
+  margin: 0.25rem;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+button:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 #1a1a1a;
+}
+
+button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #1a1a1a;
+}
+
+/* ── Intro ── */
+
+.intro-title {
+  font-size: clamp(1.9rem, 8vw, 2.8rem);
+  line-height: 1.2;
+  color: #1a1a1a;
+  margin-bottom: 0.75rem;
+}
+
+.intro-subtitle {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 1.75rem;
+}
+
+.intro-photo-placeholder {
+  width: 100%;
+  height: 240px;
+  border: 2.5px dashed #1a1a1a;
+  border-radius: 14px;
+  margin-bottom: 2rem;
+  background-color: #f5f0e4;
+  /* subtle cross-hatch */
+  background-image:
+    repeating-linear-gradient(45deg, #ddd8cc 0, #ddd8cc 1px, transparent 0, transparent 50%),
+    repeating-linear-gradient(-45deg, #ddd8cc 0, #ddd8cc 1px, transparent 0, transparent 50%);
+  background-size: 12px 12px;
+}
+
+.intro-photo {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  border: 2.5px solid #1a1a1a;
+  border-radius: 14px;
+  margin-bottom: 2rem;
+}
+
+.start-btn {
+  font-size: 1.15rem;
+  padding: 0.9rem 2.75rem;
+  background: #d63f52;
+}
+
+/* ── Quiz — viewport + moving paper sheet ── */
+
+.quiz-viewport {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  /* subtle vignette so the sheet reads as continuing past the fold */
+  background: #e8e0d4;
+}
+
+/* Fades at top and bottom edges hint that the paper runs on beyond view */
+.quiz-viewport::before,
+.quiz-viewport::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 22vh;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.quiz-viewport::before {
+  top: 0;
+  background: linear-gradient(to bottom, #e8e0d4 12%, rgba(232, 224, 212, 0));
+}
+
+.quiz-viewport::after {
+  bottom: 0;
+  background: linear-gradient(to top, #e8e0d4 12%, rgba(232, 224, 212, 0));
+}
+
+.quiz-header {
+  position: absolute;
+  top: 1.5rem;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  text-align: center;
+}
+
+/* The long single sheet that gets tugged upward */
+.paper-roll {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  padding: 27vh 2rem 40vh;
+  background-color: #f7f3e9;
+  filter: url(#grain);
+  border-left: 2.5px solid #1a1a1a;
+  border-right: 2.5px solid #1a1a1a;
+  box-shadow:
+    0 0 40px rgba(0, 0, 0, 0.18),
+    0 2px 6px rgba(0, 0, 0, 0.1);
+  /* faint ruled notebook lines */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 37px,
+    rgba(26, 60, 110, 0.08) 37px,
+    rgba(26, 60, 110, 0.08) 38px
+  );
+  will-change: transform;
+}
+
+/* Each question occupies its own region of the sheet */
+.question-block {
+  min-height: 46vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem 0;
+  transition: opacity 0.5s ease, filter 0.5s ease;
+}
+
+.question-block.active {
+  opacity: 1;
+}
+
+/* Answered questions above settle back and dim slightly */
+.question-block.settled {
+  opacity: 0.4;
+}
+
+/* Not-yet-reached questions peek in below, muted */
+.question-block.upcoming {
+  opacity: 0.5;
+}
+
+.progress-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 0.5rem;
+}
+
+.dot {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2px solid #1a1a1a;
+  background: transparent;
+  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.dot.done {
+  background: #d63f52;
+}
+
+.dot.active {
+  background: #1a1a1a;
+  transform: scale(1.3);
+  box-shadow: 0 0 0 3px #faf7f0, 0 0 0 5px #1a1a1a;
+}
+
+.progress-label {
+  font-size: 0.82rem;
+  color: #999;
+  letter-spacing: 0.04em;
+  margin-bottom: 1.5rem;
+}
+
+.prompt {
+  font-size: 1.3rem;
+  color: #1a1a1a;
+  line-height: 1.4;
+  margin-bottom: 1.5rem;
+}
+
+.question-image {
+  width: 100%;
+  max-height: 240px;
+  object-fit: cover;
+  border: 2.5px solid #1a1a1a;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Answer options — Scantron bubble rows ── */
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: stretch;
+  text-align: left;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+  /* keep rotation rules from shifting the bubble off-axis */
+  transform-origin: left center;
+}
+
+.option-row:hover:not(.disabled) {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.option-row.disabled {
+  cursor: default;
+}
+
+.bubble-svg {
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+/* The bubbled-in scribble "fills in" with a quick pop when selected */
+.bubble-fill {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bubble-fill-in 0.4s ease-out both;
+}
+
+.bubble-fill.instant {
+  animation: none;
+}
+
+@keyframes bubble-fill-in {
+  0%   { opacity: 0; transform: scale(0.3); }
+  60%  { opacity: 1; transform: scale(1.15); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.option-text {
+  font-family: 'Architects Daughter', cursive;
+  font-size: 1rem;
+  color: #1a1a1a;
+  line-height: 1.4;
+}
+
+/* ── Loading state ── */
+
+.loading-text {
+  font-size: 1.1rem;
+  color: #444;
+  margin-bottom: 0.75rem;
+}
+
+.dots {
+  display: inline-flex;
+  gap: 6px;
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.dots span {
+  color: #d63f52;
+  animation: bounce-dot 1.2s infinite ease-in-out;
+}
+
+.dots span:nth-child(2) { animation-delay: 0.2s; }
+.dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes bounce-dot {
+  0%, 80%, 100% { transform: translateY(0);    opacity: 0.3; }
+  40%            { transform: translateY(-10px); opacity: 1; }
+}
+
+/* ── Reveal screen ── */
+
+.reveal-eyebrow {
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #999;
+  margin-bottom: 0.25rem;
+}
+
+@keyframes pop-in {
+  0%   { opacity: 0; transform: scale(0.6) rotate(-3deg); }
+  65%  { transform: scale(1.06) rotate(1deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+.reveal-city {
+  font-size: clamp(2.8rem, 11vw, 4.8rem);
+  color: #d63f52;
+  line-height: 1.05;
+  margin-bottom: 1rem;
+  animation: pop-in 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  /* flat outline shadow for that cartoony inked feel */
+  text-shadow: 3px 3px 0 #1a1a1a;
+}
+
+.reveal-note {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 1.75rem;
+  min-height: 1.6em;
+}
+
+.reveal-photo-placeholder {
+  width: 100%;
+  height: 190px;
+  border: 2.5px dashed #1a1a1a;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  background-color: #eef5f9;
+  background-image:
+    repeating-linear-gradient(45deg, #ccdde8 0, #ccdde8 1px, transparent 0, transparent 50%),
+    repeating-linear-gradient(-45deg, #ccdde8 0, #ccdde8 1px, transparent 0, transparent 50%);
+  background-size: 12px 12px;
+}
+
+.reveal-photo {
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+  border: 2.5px solid #1a1a1a;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+/* ── Reveal — zoomed answer sheet + rubber stamp ── */
+
+.reveal-viewport {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #e8e0d4;
+}
+
+/* Compact standalone sheet (reuses .paper-roll cream/grain/ruled-lines) */
+.reveal-sheet {
+  transform-origin: center center;
+  max-width: 460px;
+  padding: 2rem 2.2rem;
+  /* full inked border + lift, since it's a lone sheet now */
+  border: 2.5px solid #1a1a1a;
+  border-radius: 14px;
+  box-shadow:
+    6px 6px 0 #1a1a1a,
+    0 20px 55px rgba(0, 0, 0, 0.28);
+}
+
+.reveal-sheet .question-block {
+  min-height: 0;
+  padding: 0.55rem 0;
+}
+
+.reveal-sheet .prompt {
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+}
+
+.reveal-sheet .options {
+  gap: 0.1rem;
+}
+
+/* ── The rubber stamp ── */
+
+.stamp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 380px;
+  height: 238px;
+  margin: -119px 0 0 -190px;
+  z-index: 10;
+  pointer-events: none;
+  transform-origin: center center;
+}
+
+.stamp-inner {
+  width: 100%;
+  height: 100%;
+  transform-origin: center center;
+}
+
+.stamp-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.stamp-text {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  fill: #c0392b;
+}
