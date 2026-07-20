@@ -19,7 +19,7 @@ const questions = [
       { text: "Arby's", vote: "telluride" },
       { text: "Frisco", vote: "telluride" },
       { text: "Butt, Montana", vote: "sandiego" },
-      { text: "The place where the water meets the sky meets dirt", vote: "sandiego" },
+      { text: "Grookey Zoo", vote: "sandiego" },
     ],
     image: null,
   },
