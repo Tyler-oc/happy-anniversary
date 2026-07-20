@@ -23,6 +23,16 @@ export default function Reveal({ answers }) {
   const [showStamp, setShowStamp] = useState(false);
   const [landed, setLanded] = useState(false);
 
+  // Tally the votes. 3 questions → 3 votes → majority always wins (no ties).
+  const tally = answers.reduce(
+    (acc, a) => {
+      if (a && a.vote) acc[a.vote] += 1;
+      return acc;
+    },
+    { sandiego: 0, telluride: 0 }
+  );
+  const winner = tally.telluride > tally.sandiego ? "TELLURIDE" : "SAN DIEGO";
+
   // Stage 1 zoom is declarative on the sheet; after the pull-back + a beat,
   // bring on the stamp.
   useEffect(() => {
@@ -49,21 +59,17 @@ export default function Reveal({ answers }) {
           <div key={q.id} className="question-block settled">
             <h2 className="prompt">{q.prompt}</h2>
             <div className="options">
-              {q.options.map((opt, i) => {
-                // Match the picked answer by value, first occurrence only
-                // (keeps placeholder duplicates from all filling in).
-                const picked =
-                  answers[qIndex] === opt && q.options.indexOf(opt) === i;
-                return (
-                  <BubbleOption
-                    key={i}
-                    text={opt}
-                    onSelect={() => {}}
-                    prefilled={picked}
-                    disabled
-                  />
-                );
-              })}
+              {q.options.map((opt, i) => (
+                // Each option is a distinct object, so reference equality
+                // picks exactly the one that was chosen.
+                <BubbleOption
+                  key={i}
+                  text={opt.text}
+                  onSelect={() => {}}
+                  prefilled={answers[qIndex] === opt}
+                  disabled
+                />
+              ))}
             </div>
           </div>
         ))}
@@ -160,7 +166,7 @@ export default function Reveal({ answers }) {
                   textLength="244"
                   lengthAdjust="spacingAndGlyphs"
                 >
-                  SAN DIEGO
+                  {winner}
                 </text>
               </g>
             </svg>

@@ -104,7 +104,7 @@ export default function Quiz({ onAnswer, onFinish }) {
                 {q.options.map((opt, i) => (
                   <BubbleOption
                     key={i}
-                    text={opt}
+                    text={opt.text}
                     onSelect={() => handleOption(qIndex, i, opt)}
                     selected={picked[qIndex] === i}
                     disabled={qIndex !== currentIndex || picked[qIndex] !== null}
